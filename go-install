@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+# Purpose of this script is to install and potentially update golang programming language.
+# go gets downloaded to the /usr/local directory.
+
+if [ -z "$1" ]
+then 
+	echo "Improper usage of script."
+	echo 
+	echo "Example:"
+	echo "   go-install ubuntu   "
+
+exit 1;
+fi
+
+
+TARGET_GOLANG_DIR=/usr/local
+
+if [ -d "${TARGET_GOLANG_DIR}/go" ] 
+then
+
+	echo "Go lang directory exists already. Will be deleting directory."
+	sudo rm -r ${TARGET_GOLANG_DIR}/go; 
+	echo
+    	echo "Directory ${TARGET_GOLANG_DIR}/go deleted." 
+fi
+
+
+
+
+export GOPKG="$(curl -s https://api.github.com/repos/golang/go/git/matching-refs/tags/go | grep ref | grep -v url | grep -v beta | tail -1 | awk -F\/ {' print $3 '} | sed 's/",//')"
+
+if [ "$1" == "ubuntu" ]
+then 
+	echo "Getting ubuntu compatiable version of golang"
+	wget https://golang.org/dl/$GOPKG.linux-arm64.tar.gz
+	sudo tar -C ${TARGET_GOLANG_DIR} -xzf $GOPKG.linux-arm64.tar.gz
+	rm $GOPKG.linux-arm64.tar.gz
+	echo "Golang added to ${TARGET_GOLANG_DIR}"
+	printf "\n\nInstallation of golang $GOPKG for $1 complete.\n\n"
+	exit 0;
+
+elif [	"$1" == "debian"]
+then
+	echo "Getting debian compatiable version of golang"
+	wget https://golang.org/dl/$GOPKG.linux-armv6l.tar.gz
+	sudo tar -C ${TARGET_GOLANG_DIR} -xzf $GOPKG.linux-armv6l.tar.gz
+	rm $GOPKG.linux-armv6l.tar.gz
+	echo "Golang added to ${TARGET_GOLANG_DIR}"
+	printf "\n\nInstallation of golang $GOPKG for $1 complete.\n\n"
+	exit 0;
+else
+	printf "\n\nVersion of Linux cannot be used.\n\n"
+	exit 1;
+fi
+
+printf "\n\nInstallation of golang $GOPKG for $1 complete.\n\n"
+
+exit 0;
